@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://your-backend.onrender.com";
+const API_BASE_URL = "https://breakthemdown.onrender.com";
 
 const fetchHistory = async () => {
   const response = await axios.get(`${API_BASE_URL}/history`);
