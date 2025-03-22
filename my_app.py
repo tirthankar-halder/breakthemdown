@@ -10,12 +10,12 @@ if __name__ == "__main__":
     app.run(host="0.0.0.0", port=port)
 
 
-app = Flask(__name__)
+my_app = Flask(__name__)
 CORS(app)
 
 # Configure PostgreSQL
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://username:password@localhost/instruction_db"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+my_app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://username:password@localhost/instruction_db"
+my_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 openai.api_key = "your_openai_api_key"
@@ -26,7 +26,7 @@ class InstructionHistory(db.Model):
     steps = db.Column(db.ARRAY(db.Text), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-@app.route("/breakdown", methods=["POST"])
+@my_app.route("/breakdown", methods=["POST"])
 def breakdown_instruction():
     data = request.json
     instruction = data.get("instruction")
@@ -52,7 +52,7 @@ def breakdown_instruction():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route("/history", methods=["GET"])
+@my_app.route("/history", methods=["GET"])
 def get_history():
     history = InstructionHistory.query.order_by(InstructionHistory.created_at.desc()).limit(10).all()
     return jsonify([
@@ -61,4 +61,4 @@ def get_history():
 
 if __name__ == "__main__":
     db.create_all()
-    app.run(debug=True)
+    my_app.run(debug=True)
