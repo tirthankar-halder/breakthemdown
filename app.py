@@ -6,19 +6,17 @@ from datetime import datetime
 
 import os
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+
 
 app = Flask(__name__)
 CORS(app)
 
 # Configure PostgreSQL
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://username:password@localhost/instruction_db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://btd_chat_hist_user:pi3MPN4DHB5MZ8u5xPFQE5s6ITi8DN9v@dpg-cvetm0hopnds73eipr40-a/instruction_db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
-openai.api_key = "your_openai_api_key"
+openai.api_key = "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"
 
 class InstructionHistory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -61,6 +59,6 @@ def get_history():
 
 if __name__ == "__main__":
     db.create_all()
-    app.run(debug=True)
-
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
 
