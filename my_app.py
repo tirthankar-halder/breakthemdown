@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
 
 my_app = Flask(__name__)
-CORS(app)
+CORS(my_app)
 
 # Configure PostgreSQL
 my_app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://username:password@localhost/instruction_db"
