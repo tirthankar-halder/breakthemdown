@@ -31,7 +31,7 @@ def breakdown_instruction():
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-4o",
             messages=[{"role": "user", "content": f"Break down the following instruction into steps:\n{instruction}"}]
         )
 
