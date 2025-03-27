@@ -12,7 +12,8 @@ my_app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://btd_chat_hist_user:pi3M
 my_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(my_app)
 
-openai.api_key = "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"
+# Configure API Key for Open AI
+client = openai.Client(api_key=os.getenv("OPENAI_API_KEY"))
 
 class InstructionHistory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -29,12 +30,12 @@ def breakdown_instruction():
         return jsonify({"error": "Instruction is required"}), 400
 
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": f"Break down the following instruction into steps:\n{instruction}"}]
         )
 
-        steps = response["choices"][0]["message"]["content"].strip().split("\n")
+        steps = response.choices[0].message.content.strip().split("\n")
 
         # Save to database
         new_entry = InstructionHistory(instruction=instruction, steps=steps)
