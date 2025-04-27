@@ -8,18 +8,18 @@ my_app = Flask(__name__)
 CORS(my_app)
 
 # Configure PostgreSQL
-my_app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://btd_chat_hist_user:pi3MPN4DHB5MZ8u5xPFQE5s6ITi8DN9v@dpg-cvetm0hopnds73eipr40-a/instruction_db"
-my_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-db = SQLAlchemy(my_app)
+#my_app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://btd_chat_hist_user:pi3MPN4DHB5MZ8u5xPFQE5s6ITi8DN9v@dpg-cvetm0hopnds73eipr40-a/instruction_db"
+#my_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+#db = SQLAlchemy(my_app)
 
 # Configure API Key for Open AI
 client = openai.Client(api_key=os.getenv("OPENAI_API_KEY"))
 
-class InstructionHistory(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    instruction = db.Column(db.Text, nullable=False)
-    steps = db.Column(db.ARRAY(db.Text), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+#class InstructionHistory(db.Model):
+#    id = db.Column(db.Integer, primary_key=True)
+#    instruction = db.Column(db.Text, nullable=False)
+#    steps = db.Column(db.ARRAY(db.Text), nullable=False)
+#    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 @my_app.route("/breakdown", methods=["POST"])
 def breakdown_instruction():
@@ -38,21 +38,21 @@ def breakdown_instruction():
         steps = response.choices[0].message.content.strip().split("\n")
 
         # Save to database
-        new_entry = InstructionHistory(instruction=instruction, steps=steps)
-        db.session.add(new_entry)
-        db.session.commit()
+        #new_entry = InstructionHistory(instruction=instruction, steps=steps)
+        #db.session.add(new_entry)
+        #db.session.commit()
 
         return jsonify({"steps": steps})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@my_app.route("/history", methods=["GET"])
-def get_history():
-    history = InstructionHistory.query.order_by(InstructionHistory.created_at.desc()).limit(10).all()
-    return jsonify([
-        {"instruction": h.instruction, "steps": h.steps, "created_at": h.created_at} for h in history
-    ])
+#@my_app.route("/history", methods=["GET"])
+#def get_history():
+#    history = InstructionHistory.query.order_by(InstructionHistory.created_at.desc()).limit(10).all()
+#    return jsonify([
+#        {"instruction": h.instruction, "steps": h.steps, "created_at": h.created_at} for h in history
+#    ])
 
 if __name__ == "__main__":
     db.create_all()
