@@ -32,7 +32,7 @@ def breakdown_instruction():
     try:
         response = client.chat.completions.create(
             model="gpt-4o",
-            messages=[{"role": "user", "content": f"Break down the following instruction into single line steps:\n{instruction}"}]
+            messages=[{"role": "user", "content": f"Break down the following instruction into single line concise steps without any salutation:\n{instruction}"}]
         )
 
         steps = response.choices[0].message.content.strip().split("\n")
