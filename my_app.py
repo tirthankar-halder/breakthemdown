@@ -56,7 +56,7 @@ def breakdown_instruction():
 
 
 # Send email to Contact API
-@app.route("/contact", methods=["POST"])
+@my_app.route("/contact", methods=["POST"])
 def contact():
     data = request.get_json()
     name = data.get("name")
