@@ -3,6 +3,7 @@ import openai
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from mailersend import emails
 import os
 my_app = Flask(__name__)
 CORS(my_app)
@@ -11,6 +12,11 @@ CORS(my_app)
 #my_app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://btd_chat_hist_user:pi3MPN4DHB5MZ8u5xPFQE5s6ITi8DN9v@dpg-cvetm0hopnds73eipr40-a/instruction_db"
 #my_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 #db = SQLAlchemy(my_app)
+
+#Configure Email
+MAILERSEND_API_TOKEN = os.environ.get("MAILERSEND_API_TOKEN")
+FROM_EMAIL = os.environ.get("FROM_EMAIL")
+TO_EMAIL = os.environ.get("TO_EMAIL")
 
 # Configure API Key for Open AI
 client = openai.Client(api_key=os.getenv("OPENAI_API_KEY"))
@@ -21,6 +27,7 @@ client = openai.Client(api_key=os.getenv("OPENAI_API_KEY"))
 #    steps = db.Column(db.ARRAY(db.Text), nullable=False)
 #    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+# Main API to LLM
 @my_app.route("/breakdown", methods=["POST"])
 def breakdown_instruction():
     data = request.json
@@ -45,6 +52,39 @@ def breakdown_instruction():
         return jsonify({"steps": steps})
 
     except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# Send email to Contact API
+@app.route("/contact", methods=["POST"])
+def contact():
+    data = request.get_json()
+    name = data.get("name")
+    email = data.get("email")
+    message = data.get("message")
+
+    if not all([name, email, message]):
+        return jsonify({"error": "All fields required"}), 400
+
+    try:
+        mailer = emails.NewEmail(MAILERSEND_API_TOKEN)
+
+        mailer.set_from(FROM_EMAIL, "BreakThemDown Contact")
+        mailer.set_subject("BTD: New Contact Message from App")
+        mailer.set_html(f"""
+            <h2>New Contact Submission</h2>
+            <p><strong>Name:</strong> {name}</p>
+            <p><strong>Email:</strong> {email}</p>
+            <p><strong>Message:</strong><br>{message}</p>
+        """)
+        mailer.set_to([{"email": TO_EMAIL, "name": "Your Team"}])
+
+        result = mailer.send()
+        print("MailerSend response:", result)
+        return jsonify({"status": "success"}), 200
+
+    except Exception as e:
+        print("MailerSend error:", e)
         return jsonify({"error": str(e)}), 500
 
 #@my_app.route("/history", methods=["GET"])
