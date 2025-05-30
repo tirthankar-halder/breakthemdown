@@ -2,5 +2,6 @@ flask
 flask-cors
 flask-sqlalchemy
 openai
+mailersend
 psycopg2-binary
 gunicorn
