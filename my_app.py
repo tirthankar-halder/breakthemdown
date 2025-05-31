@@ -101,7 +101,7 @@ def contact():
         # Send email
         result = mailer.send(mail_body)
         print("MailerSend response:", result)
-        return jsonify({"status": "success"}), 200
+        return jsonify({"status": "success", "result": result}), 200
 
     except Exception as e:
         print("MailerSend error:", e)
