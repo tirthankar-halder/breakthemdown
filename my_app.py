@@ -67,26 +67,19 @@ def contact():
         return jsonify({"error": "All fields required"}), 400
 
     try:
-        mailer = emails.NewEmail(token=MAILERSEND_API_TOKEN)
+        mailer = emails.NewEmail()
+        mailer.set_api_key('MAILERSEND_API_TOKEN')
 
-        mailer.from_ = {
-        "email": FROM_EMAIL,
-        "name": "BreakThemDown Contact"
-        }
+        mailer.set_from(FROM_EMAIL, "BreakThemDown Contact")
         
-        mailer.subject = "BTD: New Contact Message from App"
-        mailer.html = f"""
+        mailer.set_subject("BTD: New Contact Message from App")
+        mailer.set_html_content(f"""
             <h2>New Contact Submission</h2>
             <p><strong>Name:</strong> {name}</p>
             <p><strong>Email:</strong> {email}</p>
             <p><strong>Message:</strong><br>{message}</p>
-        """
-        mailer.to = [
-    {
-        "email": TO_EMAIL,
-        "name": "Dyaz Team"
-    }
-]
+        """)
+        mailer.set_to([{"email": TO_EMAIL, "name": "Dyaz Team"}])
 
         result = mailer.send()
         print("MailerSend response:", result)
