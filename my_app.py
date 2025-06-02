@@ -14,9 +14,9 @@ CORS(my_app)
 #db = SQLAlchemy(my_app)
 
 #Configure Email
-MAILERSEND_API_TOKEN = os.environ.get("MAILERSEND_API_TOKEN")
-FROM_EMAIL = os.environ.get("FROM_EMAIL")
-TO_EMAIL = os.environ.get("TO_EMAIL")
+MAILERSEND_API_TOKEN = os.getenv('MAILERSEND_API_TOKEN')
+FROM_EMAIL = os.getenv('FROM_EMAIL')
+TO_EMAIL = os.environ.get('TO_EMAIL')
 
 # Configure API Key for Open AI
 client = openai.Client(api_key=os.getenv("OPENAI_API_KEY"))
@@ -67,7 +67,7 @@ def contact():
         return jsonify({"error": "All fields required"}), 400
 
     try:
-        mailer = emails.NewEmail('YOUR_MAILERSEND_API_KEY')
+        mailer = emails.NewEmail(MAILERSEND_API_TOKEN)
         
         mail_body = {}
         
