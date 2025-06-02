@@ -5,13 +5,12 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from mailersend import emails
 import os
+from dotenv import load_dotenv
+
 my_app = Flask(__name__)
 CORS(my_app)
 
-# Configure PostgreSQL
-#my_app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://btd_chat_hist_user:pi3MPN4DHB5MZ8u5xPFQE5s6ITi8DN9v@dpg-cvetm0hopnds73eipr40-a/instruction_db"
-#my_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-#db = SQLAlchemy(my_app)
+load_dotenv()    # Load env variable
 
 #Configure Email
 MAILERSEND_API_TOKEN = os.getenv('MAILERSEND_API_TOKEN')
@@ -20,12 +19,6 @@ TO_EMAIL = os.environ.get('TO_EMAIL')
 
 # Configure API Key for Open AI
 client = openai.Client(api_key=os.getenv("OPENAI_API_KEY"))
-
-#class InstructionHistory(db.Model):
-#    id = db.Column(db.Integer, primary_key=True)
-#    instruction = db.Column(db.Text, nullable=False)
-#    steps = db.Column(db.ARRAY(db.Text), nullable=False)
-#    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 # Main API to LLM
 @my_app.route("/breakdown", methods=["POST"])
@@ -43,11 +36,6 @@ def breakdown_instruction():
         )
 
         steps = response.choices[0].message.content.strip().split("\n")
-
-        # Save to database
-        #new_entry = InstructionHistory(instruction=instruction, steps=steps)
-        #db.session.add(new_entry)
-        #db.session.commit()
 
         return jsonify({"steps": steps})
 
@@ -67,6 +55,13 @@ def contact():
         return jsonify({"error": "All fields required"}), 400
 
     try:
+       
+        # Replace this with actual mail sending code
+        print(f"Sending email: from {FROM_EMAIL} to {TO_EMAIL}")
+        print(f"Subject: BTD: New Contact Message from App")
+        print(f"Content: Name: {name}, Email: {email}, Message: {message}")
+       
+    
         mailer = emails.NewEmail(MAILERSEND_API_TOKEN)
         
         mail_body = {}
@@ -106,13 +101,6 @@ def contact():
     except Exception as e:
         print("MailerSend error:", e)
         return jsonify({"error": str(e)}), 500
-
-#@my_app.route("/history", methods=["GET"])
-#def get_history():
-#    history = InstructionHistory.query.order_by(InstructionHistory.created_at.desc()).limit(10).all()
-#    return jsonify([
-#        {"instruction": h.instruction, "steps": h.steps, "created_at": h.created_at} for h in history
-#    ])
 
 if __name__ == "__main__":
     db.create_all()
