@@ -15,7 +15,7 @@ load_dotenv()    # Load env variable
 #Configure Email
 MAILERSEND_API_TOKEN = os.getenv('MAILERSEND_API_TOKEN')
 FROM_EMAIL = os.getenv('FROM_EMAIL')
-TO_EMAIL = os.environ.get('TO_EMAIL')
+TO_EMAIL = os.getenv('TO_EMAIL')
 
 # Configure API Key for Open AI
 client = openai.Client(api_key=os.getenv("OPENAI_API_KEY"))
@@ -62,14 +62,14 @@ def contact():
         print(f"Content: Name: {name}, Email: {email}, Message: {message}")
        
     
-        mailer = emails.NewEmail(MAILERSEND_API_TOKEN)
+        mailer = emails.NewEmail(os.getenv('MAILERSEND_API_TOKEN'))
         
         mail_body = {}
         
         # Set sender
         mail_from = {
             "name": "BreakThemDown Contact",
-            "email": FROM_EMAIL
+            "email": os.getenv('FROM_EMAIL')
         }
         mailer.set_mail_from(mail_from, mail_body)
         
@@ -77,7 +77,7 @@ def contact():
         recipients = [
             {
                 "name": "Dyaz Team",
-                "email": TO_EMAIL
+                "email": os.getenv('TO_EMAIL')
             }
         ]
         mailer.set_mail_to(recipients, mail_body)
