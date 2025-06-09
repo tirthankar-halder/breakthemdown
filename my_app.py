@@ -20,7 +20,7 @@ load_dotenv()    # Load env variable
 
 #Configure Email
 MAILERSEND_API_TOKEN = os.getenv("MAILERSEND_API_TOKEN")
-FROM_EMAIL = os.getenv('FROM_EMAIL')
+FROM_EMAIL = os.environ.get('FROM_EMAIL')
 TO_EMAIL = os.getenv('TO_EMAIL')
 
 # Configure API Key for Open AI
@@ -72,6 +72,7 @@ def contact():
         logging.info("**Start Logging**")
         logging.info(f"The From email is {FROM_EMAIL}")
         logging.info(f"The To email is {TO_EMAIL}")
+        logging.info(f"The API is {MAILERSEND_API_TOKEN}")
     
         mailer = emails.NewEmail(os.getenv("MAILERSEND_API_TOKEN"))
         
