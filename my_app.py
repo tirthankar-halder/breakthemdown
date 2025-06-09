@@ -6,9 +6,15 @@ from datetime import datetime
 from mailersend import emails
 import os
 from dotenv import load_dotenv
+import logging
 
 my_app = Flask(__name__)
 CORS(my_app)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s: %(message)s',
+)
 
 load_dotenv()    # Load env variable
 
@@ -62,6 +68,10 @@ def contact():
         print(f"Content: Name: {name}, Email: {email}, Message: {message}")
         print("API Key is set:", bool(os.getenv("OPENAI_API_KEY")))
         print(os.getenv("FROM_EMAIL"))
+        
+        logging.info("**Start Logging**")
+        logging.info(f"The From email is {FROM_EMAIL}")
+        logging.info(f"The To email is {TO_EMAIL}")
     
         mailer = emails.NewEmail(os.getenv("MAILERSEND_API_TOKEN"))
         
