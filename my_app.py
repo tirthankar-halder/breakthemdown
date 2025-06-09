@@ -60,7 +60,8 @@ def contact():
         print(f"Sending email: from {FROM_EMAIL} to {TO_EMAIL}")
         print(f"Subject: BTD: New Contact Message from App")
         print(f"Content: Name: {name}, Email: {email}, Message: {message}")
-        print("API Key is set:", bool(os.getenv("OPENAI_API_KEY"), os.getenv("FROM_EMAIL")))
+        print("API Key is set:", bool(os.getenv("OPENAI_API_KEY")))
+        print(os.getenv("FROM_EMAIL"))
     
         mailer = emails.NewEmail(os.getenv("MAILERSEND_API_TOKEN"))
         
