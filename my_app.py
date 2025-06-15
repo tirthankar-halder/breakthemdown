@@ -48,6 +48,11 @@ def breakdown_instruction():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# Ping to wake up server
+@my_app.route("/ping", methods=["GET"])
+def ping():
+    return "OK", 200
+
 
 # Send email to Contact API
 @my_app.route("/contact", methods=["POST"])
