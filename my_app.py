@@ -32,6 +32,13 @@ def breakdown_instruction():
     data = request.json
     instruction = data.get("instruction")
 
+# Check for unsafe content using OpenAI Moderation API
+    moderation_response = client.moderations.create(input=instruction)
+    flagged = moderation_response.results[0].flagged
+
+    if flagged:
+        return jsonify({"error": "Input violates content policy"}), 400
+
     if not instruction:
         return jsonify({"error": "Instruction is required"}), 400
 
