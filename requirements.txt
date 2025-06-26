@@ -6,3 +6,4 @@ mailersend
 psycopg2-binary
 gunicorn
 dotenv
+uuid

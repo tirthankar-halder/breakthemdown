@@ -1,3 +1,13 @@
+from sqlalchemy.dialects.postgresql.psycopg2 import PGDialect_psycopg2
+
+def cockroach_version_patch(self, connection):
+    # Fake a PostgreSQL version to bypass SQLAlchemy’s parser
+    return (13, 3, 0)
+
+PGDialect_psycopg2._get_server_version_info = cockroach_version_patch
+
+
+
 from flask import Flask, request, jsonify
 import openai
 from flask_cors import CORS
@@ -7,6 +17,7 @@ from mailersend import emails
 import os
 from dotenv import load_dotenv
 import logging
+import uuid
 
 my_app = Flask(__name__)
 CORS(my_app)
@@ -23,6 +34,19 @@ MAILERSEND_API_TOKEN = os.getenv("MAILERSEND_API_TOKEN")
 FROM_EMAIL = os.environ.get('FROM_EMAIL')
 TO_EMAIL = os.getenv('TO_EMAIL')
 
+# Load DB URL from environment variable
+my_app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+my_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(my_app)
+
+class QueryDB(db.Model):
+    __tablename__ = 'querydb'
+    id = db.Column(db.String, primary_key=True)  # assuming UUID stored as string
+    querystring = db.Column(db.Text, nullable=False)
+    source = db.Column(db.Text)
+    region = db.Column(db.Text)
+    created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
+
 # Configure API Key for Open AI
 client = openai.Client(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -31,6 +55,8 @@ client = openai.Client(api_key=os.getenv("OPENAI_API_KEY"))
 def breakdown_instruction():
     data = request.json
     instruction = data.get("instruction")
+    source = data.get("source")
+    region = data.get("region")
 
 # Check for unsafe content using OpenAI Moderation API
     moderation_response = client.moderations.create(input=instruction)
@@ -41,6 +67,20 @@ def breakdown_instruction():
 
     if not instruction:
         return jsonify({"error": "Instruction is required"}), 400
+
+    new_id = str(uuid.uuid4())  # generate UUID string
+
+    new_query = QueryDB(
+        id=new_id,
+        querystring=instruction,
+        source=source,
+        region=region
+    )
+
+    db.session.add(new_query)
+    db.session.commit()
+    logging.info(f"Database query Created: {instruction} with ID {new_id}")
+
 
     try:
         response = client.chat.completions.create(
@@ -73,14 +113,7 @@ def contact():
         return jsonify({"error": "All fields required"}), 400
 
     try:
-       
-        # Replace this with actual mail sending code
-        print(f"Sending email: from {FROM_EMAIL} to {TO_EMAIL}")
-        print(f"Subject: BTD: New Contact Message from App")
-        print(f"Content: Name: {name}, Email: {email}, Message: {message}")
-        print("API Key is set:", bool(os.getenv("OPENAI_API_KEY")))
-        print(os.getenv("FROM_EMAIL"))
-        
+          
         logging.info("**Start Logging**")
         logging.info(f"The From email is {FROM_EMAIL}")
         logging.info(f"The To email is {TO_EMAIL}")
